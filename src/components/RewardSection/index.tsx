@@ -34,7 +34,7 @@ const RewardSection: React.FC<RewardSectionProps> = ({
               ${hasCompleted ? 'hover:scale-110 animate-bounce' : ''}
             `}>
               <svg 
-                className={`w-16 h-16 ${hasCompleted ? 'text-green-500' : 'text-gray-400'}`}
+                className={`sm:w-16 sm:h-16 w-12 h-12 ${hasCompleted ? 'text-green-500' : 'text-gray-400'}`}
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -47,7 +47,7 @@ const RewardSection: React.FC<RewardSectionProps> = ({
                 />
               </svg>
             </div>
-            <p className={`text-sm font-medium ${hasCompleted ? 'text-green-600' : 'text-gray-500'}`}>
+            <p className={`sm:text-sm text-xs sm:px-0 px-2 font-medium ${hasCompleted ? 'text-green-600' : 'text-gray-500'}`}>
               {hasCompleted ? 'Klik untuk membuka hadiah!' : 'Selesaikan puzzle terlebih dahulu'}
             </p>
           </div>
