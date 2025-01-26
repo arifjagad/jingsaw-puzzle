@@ -15,7 +15,7 @@ function App() {
   const [pieces, setPieces] = useState<PuzzlePiece[]>([]);
   const [isRewardOpen, setIsRewardOpen] = useState(false);
   const [hasCompletedPuzzle, setHasCompletedPuzzle] = useState(false);
-  const gridSize = 2;
+  const gridSize = 3;
   const totalPieces = gridSize * gridSize;
 
   // Initialize puzzle
