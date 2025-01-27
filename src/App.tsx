@@ -15,7 +15,7 @@ function App() {
   const [pieces, setPieces] = useState<PuzzlePiece[]>([]);
   const [isRewardOpen, setIsRewardOpen] = useState(false);
   const [hasCompletedPuzzle, setHasCompletedPuzzle] = useState(false);
-  const gridSize = 3;
+  const gridSize = 10;
   const totalPieces = gridSize * gridSize;
 
   // Initialize puzzle
@@ -158,7 +158,7 @@ function App() {
 
         {/* Right Panel */}
         <div className="lg:col-span-2 col-span-4 grid gap-6">
-          <div className="flex gap-4">
+          <div className="flex gap-4 lg:order-1 order-2">
             <ReferenceImage />
             
             {/* Reward Section */}
@@ -173,17 +173,23 @@ function App() {
             </div>
           </div>
 
-          <PuzzleTray
-            pieces={pieces}
-            gridSize={gridSize}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-          />
+          {/* Puzzle Tray */}
+          <div className="lg:order-2 order-1">
+            <PuzzleTray
+              pieces={pieces}
+              gridSize={gridSize}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            />
+          </div>
 
-          <Controls 
-            onReset={handleReset}
-            onShuffle={handleShuffle}
-          />
+          {/* Controls */}
+          <div className="lg:order-3 order-3">
+            <Controls 
+              onReset={handleReset}
+              onShuffle={handleShuffle}
+            />
+          </div>
         </div>
       </Layout>
     </>

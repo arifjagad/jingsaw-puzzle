@@ -31,7 +31,7 @@ const PuzzleGrid = ({
       return (
         <div
           key={i}
-          className={`border-2 border-gray-200 aspect-square relative overflow-hidden rounded-lg ${
+          className={`border-2 ${piece ? 'border-blue-200' : 'border-gray-200'} aspect-square relative overflow-hidden rounded-lg ${
             !piece ? 'bg-gray-50' : ''
           } hover:border-blue-400`}
           onDragOver={handlers.onDragOver}

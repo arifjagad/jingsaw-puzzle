@@ -12,14 +12,14 @@ type Props = {
 const PuzzleTray = ({ pieces, gridSize, onDragStart, onDragEnd }: Props) => (
   <div className="bg-white p-6 rounded-xl shadow-lg w-full">
     <h2 className="text-xl font-semibold mb-4 text-gray-800">Kepingan Puzzle</h2>
-    <div className="grid xl:grid-cols-8 lg:grid-cols-6 sm:grid-cols-6 grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg">
+    <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg h-48 w-full overflow-y-auto border-2 border-gray-200">
       {pieces.filter(p => p.currentPosition === null).map((piece) => (
         <div
           key={piece.id}
           draggable
           onDragStart={(e) => onDragStart(e, piece)}
           onDragEnd={onDragEnd}
-          className="aspect-square cursor-move relative overflow-hidden rounded-lg shadow-sm hover:shadow-md"
+          className="md:w-12 md:h-12 w-9 h-9 cursor-move relative overflow-hidden rounded-lg shadow-sm hover:shadow-md border border-gray-300"
         >
           <PuzzlePiece
             piece={piece}
