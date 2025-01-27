@@ -1,6 +1,10 @@
 import { useState } from 'react';
 
-const ReferenceImage = () => {
+type Props = {
+  imageUrl: string;
+};
+
+const ReferenceImage = ({ imageUrl }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -11,7 +15,7 @@ const ReferenceImage = () => {
         onClick={() => setIsModalOpen(true)}
       >
         <img 
-          src="/images/jingsaw-image.jpg" 
+          src={imageUrl}
           alt="Reference"
           className="w-full rounded-lg shadow-md"
         />
@@ -24,7 +28,7 @@ const ReferenceImage = () => {
         >
           <div className="relative max-w-xs w-full">
             <img
-              src="/images/jingsaw-image.jpg"
+              src={imageUrl}
               alt="Reference Full Size"
               className="w-full h-full object-contain rounded-lg"
             />

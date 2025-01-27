@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
-import { shuffleArray } from './utils/helpers';
+import { shuffleArray, cropImageToSquare } from './utils/helpers';
 import type { PuzzlePiece } from './types';
 
 // Components
 import Layout from './components/Layout';
 import PuzzleGrid from './components/PuzzleGrid';
 import ReferenceImage from './components/ReferenceImage';
-import RewardSection from './components/RewardSection';
 import PuzzleTray from './components/PuzzleTray';
 import Controls from './components/Controls';
 
 function App() {
   const [pieces, setPieces] = useState<PuzzlePiece[]>([]);
-  const [isRewardOpen, setIsRewardOpen] = useState(false);
-  const [hasCompletedPuzzle, setHasCompletedPuzzle] = useState(false);
-  const gridSize = 10;
+  const [gridSize, setGridSize] = useState(3);
+  const [imageUrl, setImageUrl] = useState('/images/jingsaw-image.jpg');
+  const [isLoading, setIsLoading] = useState(false);
   const totalPieces = gridSize * gridSize;
 
-  // Initialize puzzle
-  useEffect(() => {
+  const initializePuzzle = useCallback(() => {
     const initialPieces: PuzzlePiece[] = Array.from(
       { length: totalPieces },
       (_, i) => ({
@@ -29,8 +27,12 @@ function App() {
       })
     );
     setPieces(shuffleArray([...initialPieces]));
-    setHasCompletedPuzzle(false);
   }, [totalPieces]);
+
+  // Initialize puzzle
+  useEffect(() => {
+    initializePuzzle();
+  }, [initializePuzzle, gridSize]);
 
   // Check puzzle completion
   useEffect(() => {
@@ -39,9 +41,8 @@ function App() {
         p => p.currentPosition === p.correctPosition
       );
       
-      if (isComplete && !hasCompletedPuzzle) {
-        setHasCompletedPuzzle(true);
-        toast.success('Selamat! Anda berhasil menyelesaikan puzzle! Silahkan klik tombol reward untuk mendapatkan hadiah! 🎉', {
+      if (isComplete) {
+        toast.success('Selamat! Anda berhasil menyelesaikan puzzle! 🎉', {
           duration: 3000,
           style: {
             background: '#4CAF50',
@@ -53,7 +54,7 @@ function App() {
         });
       }
     }
-  }, [pieces, hasCompletedPuzzle]);
+  }, [pieces]);
 
   // Drag and Drop Handlers
   const handleDragStart = (e: React.DragEvent, piece: PuzzlePiece) => {
@@ -109,32 +110,34 @@ function App() {
   };
 
   // Control Handlers
-  const handleRewardClick = () => {
-    if (!hasCompletedPuzzle) {
-      toast.error('Selesaikan puzzle terlebih dahulu untuk membuka hadiah! 🎮');
-      return;
-    }
-    setIsRewardOpen(true);
-  };
-
   const handleReset = () => {
-    const initialPieces: PuzzlePiece[] = Array.from(
-      { length: totalPieces },
-      (_, i) => ({
-        id: i,
-        correctPosition: i,
-        currentPosition: null,
-      })
-    );
-    setHasCompletedPuzzle(false);
-    setPieces(shuffleArray([...initialPieces]));
+    initializePuzzle();
   };
 
   const handleShuffle = () => {
-    setHasCompletedPuzzle(false);
     setPieces(currentPieces => 
       shuffleArray([...currentPieces]).map(p => ({ ...p, currentPosition: null }))
     );
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsLoading(true);
+      const croppedImageUrl = await cropImageToSquare(file);
+      setImageUrl(croppedImageUrl);
+      handleReset();
+    } catch (error) {
+      toast.error('Gagal memproses gambar. Silakan coba lagi.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGridSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setGridSize(Number(e.target.value));
   };
 
   return (
@@ -153,22 +156,25 @@ function App() {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            imageUrl={imageUrl}
           />
         </div>
 
         {/* Right Panel */}
         <div className="lg:col-span-2 col-span-4 grid gap-6">
           <div className="flex gap-4 lg:order-1 order-2">
-            <ReferenceImage />
+            <ReferenceImage imageUrl={imageUrl} />
             
-            {/* Reward Section */}
+            {/* Controls Section */}
             <div className="bg-white p-6 rounded-xl shadow-lg w-full">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">Hadiah</h2>
-              <RewardSection
-                hasCompleted={hasCompletedPuzzle}
-                isOpen={isRewardOpen}
-                onOpen={handleRewardClick}
-                onClose={() => setIsRewardOpen(false)}
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">Pengaturan</h2>
+              <Controls 
+                onReset={handleReset}
+                onShuffle={handleShuffle}
+                onImageUpload={handleImageUpload}
+                gridSize={gridSize}
+                onGridSizeChange={handleGridSizeChange}
+                isLoading={isLoading}
               />
             </div>
           </div>
@@ -180,14 +186,7 @@ function App() {
               gridSize={gridSize}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
-            />
-          </div>
-
-          {/* Controls */}
-          <div className="lg:order-3 order-3">
-            <Controls 
-              onReset={handleReset}
-              onShuffle={handleShuffle}
+              imageUrl={imageUrl}
             />
           </div>
         </div>

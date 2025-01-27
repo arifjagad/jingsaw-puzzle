@@ -11,12 +11,14 @@ type Props = {
   onDragLeave: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent, targetPosition: number) => void;
   totalPieces: number;
+  imageUrl: string;
 };
 
 const PuzzleGrid = ({
   pieces,
   gridSize,
   totalPieces,
+  imageUrl,
   ...handlers
 }: Props) => (
   <div
@@ -44,6 +46,7 @@ const PuzzleGrid = ({
               gridSize={gridSize}
               onDragStart={handlers.onDragStart}
               onDragEnd={handlers.onDragEnd}
+              imageUrl={imageUrl}
             />
           )}
         </div>

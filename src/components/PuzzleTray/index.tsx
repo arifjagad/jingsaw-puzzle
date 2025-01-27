@@ -7,9 +7,10 @@ type Props = {
   gridSize: number;
   onDragStart: (e: React.DragEvent, piece: PuzzlePieceType) => void;
   onDragEnd: (e: React.DragEvent) => void;
+  imageUrl: string;
 };
 
-const PuzzleTray = ({ pieces, gridSize, onDragStart, onDragEnd }: Props) => (
+const PuzzleTray = ({ pieces, gridSize, onDragStart, onDragEnd, imageUrl }: Props) => (
   <div className="bg-white p-6 rounded-xl shadow-lg w-full">
     <h2 className="text-xl font-semibold mb-4 text-gray-800">Kepingan Puzzle</h2>
     <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg h-48 w-full overflow-y-auto border-2 border-gray-200">
@@ -26,6 +27,7 @@ const PuzzleTray = ({ pieces, gridSize, onDragStart, onDragEnd }: Props) => (
             gridSize={gridSize}
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
+            imageUrl={imageUrl}
           />
         </div>
       ))}
