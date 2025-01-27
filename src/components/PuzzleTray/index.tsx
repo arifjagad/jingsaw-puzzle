@@ -20,7 +20,7 @@ const PuzzleTray = ({ pieces, gridSize, onDragStart, onDragEnd, imageUrl }: Prop
           draggable
           onDragStart={(e) => onDragStart(e, piece)}
           onDragEnd={onDragEnd}
-          className="md:w-12 md:h-12 w-9 h-9 cursor-move relative overflow-hidden rounded-lg shadow-sm hover:shadow-md border border-gray-300"
+          className="sm:w-16 sm:h-16 w-14 h-14 cursor-move relative overflow-hidden rounded-lg shadow-sm hover:shadow-md border border-gray-300"
         >
           <PuzzlePiece
             piece={piece}

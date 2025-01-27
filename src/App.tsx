@@ -162,7 +162,7 @@ function App() {
 
         {/* Right Panel */}
         <div className="lg:col-span-2 col-span-4 grid gap-6">
-          <div className="flex gap-4 lg:order-1 order-2">
+          <div className="flex sm:flex-row flex-col gap-4 lg:order-1 order-2">
             <ReferenceImage imageUrl={imageUrl} />
             
             {/* Controls Section */}
