@@ -7,14 +7,17 @@ type Props = {
   onDragStart: (e: React.DragEvent, piece: PuzzlePiece) => void;
   onDragEnd: (e: React.DragEvent) => void;
   imageUrl: string;
+  isCompleted: boolean;
 };
 
-const PuzzlePiece = ({ piece, gridSize, onDragStart, onDragEnd, imageUrl }: Props) => (
+const PuzzlePiece = ({ piece, gridSize, onDragStart, onDragEnd, imageUrl, isCompleted }: Props) => (
   <div
-    draggable
+    draggable={!isCompleted}
     onDragStart={(e) => onDragStart(e, piece)}
     onDragEnd={onDragEnd}
-    className="absolute inset-0 bg-cover bg-center cursor-move"
+    className={`absolute inset-0 bg-cover bg-center ${
+      isCompleted ? 'cursor-default' : 'cursor-move'
+    }`}
     style={{
       backgroundImage: `url("${imageUrl}")`,
       backgroundPosition: `${-(piece.correctPosition % gridSize) * 100}% ${

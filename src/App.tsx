@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
-import { shuffleArray, cropImageToSquare } from './utils/helpers';
+import { shuffleArray, cropImageToSquare, formatTime } from './utils/helpers';
 import type { PuzzlePiece } from './types';
 
 // Components
@@ -15,6 +15,9 @@ function App() {
   const [gridSize, setGridSize] = useState(3);
   const [imageUrl, setImageUrl] = useState('/images/jingsaw-image.jpg');
   const [isLoading, setIsLoading] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
   const totalPieces = gridSize * gridSize;
 
   const initializePuzzle = useCallback(() => {
@@ -27,12 +30,30 @@ function App() {
       })
     );
     setPieces(shuffleArray([...initialPieces]));
+    setTimer(0);
+    setIsTimerRunning(true);
+    setIsCompleted(false);
   }, [totalPieces]);
 
   // Initialize puzzle
   useEffect(() => {
     initializePuzzle();
   }, [initializePuzzle, gridSize]);
+
+  // Timer effect
+  useEffect(() => {
+    let interval: number | undefined;
+    
+    if (isTimerRunning) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer + 1);
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isTimerRunning]);
 
   // Check puzzle completion
   useEffect(() => {
@@ -42,40 +63,65 @@ function App() {
       );
       
       if (isComplete) {
-        toast.success('Selamat! Anda berhasil menyelesaikan puzzle! 🎉', {
-          duration: 3000,
-          style: {
-            background: '#4CAF50',
-            color: '#fff',
-            fontSize: '16px',
-            padding: '16px',
-          },
-          icon: '🏆'
-        });
+        setIsTimerRunning(false);
+        setIsCompleted(true);
+        toast.success(
+          `Selamat! Anda berhasil menyelesaikan puzzle dalam waktu ${formatTime(timer)}! 🎉`, 
+          {
+            duration: 3000,
+            style: {
+              background: '#4CAF50',
+              color: '#fff',
+              fontSize: '16px',
+              padding: '16px',
+            },
+            icon: '🏆'
+          }
+        );
       }
     }
-  }, [pieces]);
+  }, [pieces, timer]);
 
   // Drag and Drop Handlers
   const handleDragStart = (e: React.DragEvent, piece: PuzzlePiece) => {
+    if (isCompleted) {
+      e.preventDefault();
+      return;
+    }
     e.dataTransfer.setData('text/plain', JSON.stringify(piece));
     e.currentTarget.classList.add('opacity-50');
   };
 
   const handleDragEnd = (e: React.DragEvent) => {
+    if (isCompleted) {
+      e.preventDefault();
+      return;
+    }
     e.currentTarget.classList.remove('opacity-50');
   };
 
   const handleDragOver = (e: React.DragEvent) => {
+    if (isCompleted) {
+      e.preventDefault();
+      return;
+    }
     e.preventDefault();
     e.currentTarget.classList.add('border-blue-500');
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
+    if (isCompleted) {
+      e.preventDefault();
+      return;
+    }
     e.currentTarget.classList.remove('border-blue-500');
   };
 
   const handleDrop = (e: React.DragEvent, targetPosition: number) => {
+    if (isCompleted) {
+      e.preventDefault();
+      return;
+    }
     e.preventDefault();
     e.currentTarget.classList.remove('border-blue-500');
 
@@ -132,16 +178,13 @@ function App() {
           .map(p => p.currentPosition)
       );
       
-      // Get available positions
       const availablePositions = Array.from(
         { length: totalPieces },
         (_, i) => i
       ).filter(pos => !placedPositions.has(pos));
       
-      // Shuffle available positions
       const shuffledPositions = shuffleArray([...availablePositions]);
       
-      // Assign random positions to unplaced pieces
       unplacedPieces.forEach((piece, index) => {
         const pieceIndex = newPieces.findIndex(p => p.id === piece.id);
         if (pieceIndex !== -1 && shuffledPositions[index] !== undefined) {
@@ -181,8 +224,13 @@ function App() {
       <Toaster position="top-center" />
       <Layout>
         {/* Puzzle Area */}
-        <div className="lg:col-span-2 col-span-4 bg-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">Area Puzzle</h2>
+        <div className="lg:col-span-2 col-span-4 bg-white p-6 rounded-xl shadow-lg relative">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-800">Area Puzzle</h2>
+            <div className="text-lg font-mono bg-gray-100 px-3 py-1 rounded-lg">
+              {formatTime(timer)}
+            </div>
+          </div>
           <PuzzleGrid
             pieces={pieces}
             gridSize={gridSize}
@@ -193,6 +241,7 @@ function App() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             imageUrl={imageUrl}
+            isCompleted={isCompleted}
           />
         </div>
 
@@ -225,6 +274,7 @@ function App() {
               onDragEnd={handleDragEnd}
               imageUrl={imageUrl}
               onInsertAll={handleInsertAll}
+              isCompleted={isCompleted}
             />
           </div>
         </div>

@@ -12,6 +12,7 @@ type Props = {
   onDrop: (e: React.DragEvent, targetPosition: number) => void;
   totalPieces: number;
   imageUrl: string;
+  isCompleted: boolean;
 };
 
 const PuzzleGrid = ({
@@ -19,10 +20,13 @@ const PuzzleGrid = ({
   gridSize,
   totalPieces,
   imageUrl,
+  isCompleted,
   ...handlers
 }: Props) => (
   <div
-    className="grid gap-1 border-4 border-dashed border-gray-200 p-4 rounded-lg"
+    className={`grid border-4 border-dashed ${
+      isCompleted ? 'border-green-200' : 'border-gray-200'
+    } p-4 rounded-lg`}
     style={{ 
       gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
       aspectRatio: '1/1'
@@ -33,12 +37,18 @@ const PuzzleGrid = ({
       return (
         <div
           key={i}
-          className={`border-2 ${piece ? 'border-blue-200' : 'border-gray-200'} aspect-square relative overflow-hidden rounded-lg ${
+          className={`border-2 ${
+            isCompleted
+              ? 'border-green-200'
+              : piece
+              ? 'border-blue-200'
+              : 'border-gray-200'
+          } aspect-square relative overflow-hidden rounded-lg ${
             !piece ? 'bg-gray-50' : ''
-          } hover:border-blue-400`}
-          onDragOver={handlers.onDragOver}
-          onDragLeave={handlers.onDragLeave}
-          onDrop={(e) => handlers.onDrop(e, i)}
+          } ${!isCompleted && 'hover:border-blue-400'}`}
+          onDragOver={!isCompleted ? handlers.onDragOver : undefined}
+          onDragLeave={!isCompleted ? handlers.onDragLeave : undefined}
+          onDrop={!isCompleted ? (e) => handlers.onDrop(e, i) : undefined}
         >
           {piece && (
             <PuzzlePiece
@@ -47,6 +57,7 @@ const PuzzleGrid = ({
               onDragStart={handlers.onDragStart}
               onDragEnd={handlers.onDragEnd}
               imageUrl={imageUrl}
+              isCompleted={isCompleted}
             />
           )}
         </div>
