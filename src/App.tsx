@@ -115,9 +115,45 @@ function App() {
   };
 
   const handleShuffle = () => {
-    setPieces(currentPieces => 
-      shuffleArray([...currentPieces]).map(p => ({ ...p, currentPosition: null }))
-    );
+    setPieces(currentPieces => {
+      const unplacedPieces = currentPieces.filter(p => p.currentPosition === null);
+      const placedPieces = currentPieces.filter(p => p.currentPosition !== null);
+      return [...placedPieces, ...shuffleArray(unplacedPieces)];
+    });
+  };
+
+  const handleInsertAll = () => {
+    setPieces(currentPieces => {
+      const newPieces = [...currentPieces];
+      const unplacedPieces = newPieces.filter(p => p.currentPosition === null);
+      const placedPositions = new Set(
+        newPieces
+          .filter(p => p.currentPosition !== null)
+          .map(p => p.currentPosition)
+      );
+      
+      // Get available positions
+      const availablePositions = Array.from(
+        { length: totalPieces },
+        (_, i) => i
+      ).filter(pos => !placedPositions.has(pos));
+      
+      // Shuffle available positions
+      const shuffledPositions = shuffleArray([...availablePositions]);
+      
+      // Assign random positions to unplaced pieces
+      unplacedPieces.forEach((piece, index) => {
+        const pieceIndex = newPieces.findIndex(p => p.id === piece.id);
+        if (pieceIndex !== -1 && shuffledPositions[index] !== undefined) {
+          newPieces[pieceIndex] = {
+            ...newPieces[pieceIndex],
+            currentPosition: shuffledPositions[index],
+          };
+        }
+      });
+      
+      return newPieces;
+    });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,6 +211,7 @@ function App() {
                 gridSize={gridSize}
                 onGridSizeChange={handleGridSizeChange}
                 isLoading={isLoading}
+                pieces={pieces}
               />
             </div>
           </div>
@@ -187,6 +224,7 @@ function App() {
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
               imageUrl={imageUrl}
+              onInsertAll={handleInsertAll}
             />
           </div>
         </div>
